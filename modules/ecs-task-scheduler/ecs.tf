@@ -26,6 +26,17 @@ resource "aws_security_group" "task_sg" {
   }
 }
 
+# Allow ECS task SG to access EC2 instance SG (all traffic by default; scope as needed)
+resource "aws_security_group_rule" "ecs_to_ec2" {
+  count                    = var.create_ec2_instance_profile ? 1 : 0
+  type                     = "ingress"
+  from_port                = 0
+  to_port                  = 0
+  protocol                 = "-1"
+  security_group_id        = aws_security_group.spot_sg[0].id
+  source_security_group_id = length(var.task_security_group_ids) > 0 ? var.task_security_group_ids[0] : aws_security_group.task_sg[0].id
+}
+
 # Task definition for FARGATE
 data "aws_iam_policy_document" "exec_role_assume" {
   statement {

@@ -156,3 +156,14 @@ variable "create_ec2_instance_profile" {
   description = "Create EC2 instance profile and IAM role for spot instance. Set false to provide existing instance_profile_name."
 }
 
+# EC2 purchase option selection
+variable "ec2_purchase_option" {
+  type        = string
+  default     = "spot"
+  description = "EC2 purchase option: 'spot' for persistent spot, 'ondemand' for on-demand instance."
+  validation {
+    condition     = contains(["spot", "ondemand"], var.ec2_purchase_option)
+    error_message = "ec2_purchase_option must be 'spot' or 'ondemand'."
+  }
+}
+

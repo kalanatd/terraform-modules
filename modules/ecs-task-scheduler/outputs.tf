@@ -20,12 +20,12 @@ output "schedule_rule_arn" {
 
 output "spot_instance_id" {
   description = "Spot instance ID"
-  value       = length(aws_spot_instance_request.gpu_spot) > 0 ? aws_spot_instance_request.gpu_spot[0].spot_instance_id : ""
+  value       = length(aws_spot_instance_request.gpu_spot) > 0 ? aws_spot_instance_request.gpu_spot[0].spot_instance_id : (length(aws_instance.ondemand) > 0 ? aws_instance.ondemand[0].id : "")
 }
 
 output "spot_instance_public_ip" {
   description = "Public IP of spot instance if assigned (may be empty)"
-  value       = length(data.aws_instance.spot_instance) > 0 ? data.aws_instance.spot_instance[0].public_ip : ""
+  value       = length(data.aws_instance.spot_instance) > 0 ? data.aws_instance.spot_instance[0].public_ip : (length(data.aws_instance.ondemand_instance) > 0 ? data.aws_instance.ondemand_instance[0].public_ip : "")
 }
 
 output "task_security_group_id" {

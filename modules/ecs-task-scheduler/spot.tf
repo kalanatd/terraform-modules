@@ -1,4 +1,4 @@
-# Security group for Spot instance
+# Security group for EC2 instance (spot or on-demand)
 resource "aws_security_group" "spot_sg" {
   count  = var.create_ec2_instance_profile ? 1 : 0
   name   = "${var.name}-spot-sg"
@@ -38,7 +38,7 @@ locals {
   chosen_ami = var.spot_ami_id != "" ? var.spot_ami_id : (length(data.aws_ami.default) > 0 ? data.aws_ami.default[0].id : "")
 }
 
-# Launch Template for the spot instance
+# Launch Template shared by spot or on-demand
 resource "aws_launch_template" "spot" {
   count        = var.create_ec2_instance_profile ? 1 : 0
   name_prefix   = "${var.name}-spot-lt-"
@@ -76,9 +76,9 @@ resource "aws_launch_template" "spot" {
   }
 }
 
-# Request a persistent Spot instance (spot request - persistent)
+# Request a persistent Spot instance (spot)
 resource "aws_spot_instance_request" "gpu_spot" {
-  count                   = var.create_ec2_instance_profile ? 1 : 0
+  count                   = var.create_ec2_instance_profile && var.ec2_purchase_option == "spot" ? 1 : 0
   instance_type           = var.spot_instance_type
   launch_group            = "${var.name}-spot-group"
   launch_template {
@@ -90,9 +90,25 @@ resource "aws_spot_instance_request" "gpu_spot" {
   tags = merge(var.tags, { Name = "${var.name}-spot-instance" })
 }
 
-# Export instance details
+# On-demand instance using the same launch template
+resource "aws_instance" "ondemand" {
+  count = var.create_ec2_instance_profile && var.ec2_purchase_option == "ondemand" ? 1 : 0
+  launch_template {
+    id      = aws_launch_template.spot[0].id
+    version = "$Latest"
+  }
+  tags = merge(var.tags, { Name = "${var.name}-ondemand-instance" })
+}
+
+# Export instance details for spot
 data "aws_instance" "spot_instance" {
-  count       = var.create_ec2_instance_profile ? 1 : 0
+  count       = var.create_ec2_instance_profile && var.ec2_purchase_option == "spot" ? 1 : 0
   depends_on  = [aws_spot_instance_request.gpu_spot[0]]
   instance_id = aws_spot_instance_request.gpu_spot[0].spot_instance_id
+}
+
+# Export instance details for on-demand
+data "aws_instance" "ondemand_instance" {
+  count       = var.create_ec2_instance_profile && var.ec2_purchase_option == "ondemand" ? 1 : 0
+  instance_id = aws_instance.ondemand[0].id
 }
