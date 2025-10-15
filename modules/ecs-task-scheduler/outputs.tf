@@ -20,15 +20,15 @@ output "schedule_rule_arn" {
 
 output "spot_instance_id" {
   description = "Spot instance ID"
-  value       = aws_spot_instance_request.gpu_spot.instance_id
+  value       = length(aws_spot_instance_request.gpu_spot) > 0 ? aws_spot_instance_request.gpu_spot[0].spot_instance_id : ""
 }
 
 output "spot_instance_public_ip" {
   description = "Public IP of spot instance if assigned (may be empty)"
-  value       = try(data.aws_instance.spot_instance.public_ip, "")
+  value       = length(data.aws_instance.spot_instance) > 0 ? data.aws_instance.spot_instance[0].public_ip : ""
 }
 
 output "task_security_group_id" {
   description = "Security group id used for the Fargate task"
-  value       = length(var.task_security_group_ids) > 0 ? var.task_security_group_ids : aws_security_group.task_sg[0].id
+  value       = length(var.task_security_group_ids) > 0 ? var.task_security_group_ids : [aws_security_group.task_sg[0].id]
 }

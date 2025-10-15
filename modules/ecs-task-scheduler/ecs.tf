@@ -98,7 +98,7 @@ resource "aws_cloudwatch_event_target" "run_task" {
     network_configuration {
       subnets         = length(var.task_subnet_ids) > 0 ? var.task_subnet_ids : var.private_subnet_ids
       security_groups = length(var.task_security_group_ids) > 0 ? var.task_security_group_ids : [aws_security_group.task_sg[0].id]
-      assign_public_ip = false
+      assign_public_ip = var.task_assign_public_ip
     }
   }
 }

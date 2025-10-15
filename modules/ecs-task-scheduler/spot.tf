@@ -1,5 +1,6 @@
 # Security group for Spot instance
 resource "aws_security_group" "spot_sg" {
+  count  = var.create_ec2_instance_profile ? 1 : 0
   name   = "${var.name}-spot-sg"
   vpc_id = var.vpc_id
   description = "Security group for GPU Spot instance"
@@ -39,6 +40,7 @@ locals {
 
 # Launch Template for the spot instance
 resource "aws_launch_template" "spot" {
+  count        = var.create_ec2_instance_profile ? 1 : 0
   name_prefix   = "${var.name}-spot-lt-"
   image_id      = local.chosen_ami
   instance_type = var.spot_instance_type
@@ -50,7 +52,7 @@ resource "aws_launch_template" "spot" {
 
   network_interfaces {
     associate_public_ip_address = var.spot_allocate_public_ip ? true : false
-    security_groups             = [aws_security_group.spot_sg.id]
+    security_groups             = [aws_security_group.spot_sg[0].id]
   }
 
   block_device_mappings {
@@ -76,10 +78,11 @@ resource "aws_launch_template" "spot" {
 
 # Request a persistent Spot instance (spot request - persistent)
 resource "aws_spot_instance_request" "gpu_spot" {
-  count                   = 1
+  count                   = var.create_ec2_instance_profile ? 1 : 0
+  instance_type           = var.spot_instance_type
   launch_group            = "${var.name}-spot-group"
   launch_template {
-    id      = aws_launch_template.spot.id
+    id      = aws_launch_template.spot[0].id
     version = "$Latest"
   }
   spot_type               = "persistent"
@@ -89,6 +92,7 @@ resource "aws_spot_instance_request" "gpu_spot" {
 
 # Export instance details
 data "aws_instance" "spot_instance" {
-  depends_on = [aws_spot_instance_request.gpu_spot]
-  instance_id = aws_spot_instance_request.gpu_spot.instance_id
+  count       = var.create_ec2_instance_profile ? 1 : 0
+  depends_on  = [aws_spot_instance_request.gpu_spot[0]]
+  instance_id = aws_spot_instance_request.gpu_spot[0].spot_instance_id
 }

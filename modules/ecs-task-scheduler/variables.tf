@@ -76,6 +76,15 @@ variable "task_security_group_ids" {
   default     = []
 }
 
+# Whether to assign a public IP to the Fargate task ENI. Set true when using
+# public subnets and no NAT is available, so the task can reach the internet
+# (e.g., to pull images from Docker Hub). Keep false for private subnets with NAT.
+variable "task_assign_public_ip" {
+  type        = bool
+  description = "Assign public IP to Fargate task network interface (requires public subnets)."
+  default     = true
+}
+
 # ECS cluster config
 variable "cluster_name" {
   type        = string
