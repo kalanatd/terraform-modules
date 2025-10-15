@@ -76,7 +76,7 @@ resource "aws_launch_template" "spot" {
 
 # Request a persistent Spot instance (spot request - persistent)
 resource "aws_spot_instance_request" "gpu_spot" {
-  instance_count          = 1
+  count                   = 1
   launch_group            = "${var.name}-spot-group"
   launch_template {
     id      = aws_launch_template.spot.id

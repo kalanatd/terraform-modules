@@ -63,7 +63,7 @@ resource "aws_ecs_task_definition" "scheduled" {
         logDriver = "awslogs"
         options = {
           "awslogs-group"         = aws_cloudwatch_log_group.task.name
-          "awslogs-region"        = data.aws_region.current.name
+          "awslogs-region"        = data.aws_region.current.id
           "awslogs-stream-prefix" = var.container_name
         }
       }
@@ -79,7 +79,7 @@ data "aws_region" "current" {}
 resource "aws_cloudwatch_event_rule" "schedule" {
   name                = "${var.name}-schedule"
   schedule_expression = var.schedule_expression
-  is_enabled          = true
+  state               = "ENABLED"
   tags                = var.tags
 }
 
