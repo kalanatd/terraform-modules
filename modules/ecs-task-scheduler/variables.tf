@@ -27,10 +27,10 @@ variable "public_subnet_ids" {
   default     = []
 }
 
-# ECR image (full URI or image:tag) - user provides this
-variable "ecr_image" {
+# Container image - supports both ECR and Docker Hub
+variable "container_image" {
   type        = string
-  description = "Full ECR image URI (e.g. 123456789012.dkr.ecr.us-east-1.amazonaws.com/myrepo:tag)"
+  description = "Container image URI. Supports ECR (123456789012.dkr.ecr.us-east-1.amazonaws.com/myrepo:tag) or Docker Hub (nginx:latest)"
 }
 
 variable "container_name" {

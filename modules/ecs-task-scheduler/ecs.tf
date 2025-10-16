@@ -60,7 +60,7 @@ resource "aws_ecs_task_definition" "scheduled" {
   container_definitions = jsonencode([
     {
       name      = var.container_name
-      image     = var.ecr_image
+      image     = var.container_image
       essential = true
       cpu       = var.fargate_cpu
       memory    = var.fargate_memory
