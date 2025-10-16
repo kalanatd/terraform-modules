@@ -101,8 +101,11 @@ variable "ec2_instance_type" {
 
 variable "ec2_ami_id" {
   type        = string
-  description = "AMI ID to use for the EC2 instance (spot or on-demand). If empty the module will try to find an ECS-optimized AMI."
   default     = ""
+  validation {
+    condition     = length(var.ec2_ami_id) > 0
+    error_message = "ec2_ami_id must be set."
+  }
 }
 
 variable "ec2_key_name" {
@@ -165,10 +168,4 @@ variable "ec2_purchase_option" {
     condition     = contains(["spot", "ondemand"], var.ec2_purchase_option)
     error_message = "ec2_purchase_option must be 'spot' or 'ondemand'."
   }
-}
-
-variable "ec2_subnet_id" {
-  type        = string
-  description = "Subnet ID for the EC2 instance. If empty, uses the first of task_subnet_ids or private_subnet_ids."
-  default     = ""
 }

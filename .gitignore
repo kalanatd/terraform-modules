@@ -1,0 +1,47 @@
+# Terraform
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+.terraform/
+.terraform.*
+.terraform.lock.hcl
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+resources/.terraform/
+resources/.terraform.lock.hcl
+resources/terraform.tfstate
+resources/terraform.tfstate.backup
+resources/terraform.tfvars
+resources/terraform.tfvars.json
+resources/terraform.rc
+resources/override.tf
+resources/override.tf.json
+resources/*_override.tf
+resources/*_override.tf.json
+# Local env
+*.tfvars
+*.tfvars.json
+.env
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log

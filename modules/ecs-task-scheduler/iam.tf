@@ -31,6 +31,16 @@ resource "aws_iam_role" "ecs_task_role" {
   tags = var.tags
 }
 
+resource "aws_iam_role_policy_attachment" "ecs_task_role_cloudwatch_read" {
+  role       = aws_iam_role.ecs_task_role.name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchReadOnlyAccess"
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_task_role_ec2_read" {
+  role       = aws_iam_role.ecs_task_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess"
+}
+
 # EventBridge (CloudWatch Events) role to run ECS tasks
 resource "aws_iam_role" "events_invoke_ecs" {
   name = "${var.name}-events-ecs-role"
@@ -101,4 +111,5 @@ resource "aws_iam_instance_profile" "ec2_instance_profile" {
   count = var.create_ec2_instance_profile ? 1 : 0
   name  = coalesce(var.instance_profile_name, "${var.name}-instance-profile")
   role  = aws_iam_role.ec2_instance_role[0].name
+  tags  = var.tags
 }
