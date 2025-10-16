@@ -13,7 +13,7 @@ variable "name" {
 # Networking
 variable "vpc_id" {
   type        = string
-  description = "VPC ID for ECS tasks and the spot instance (module does not create a VPC)."
+  description = "VPC ID for ECS tasks and the ec2 instance (module does not create a VPC)."
 }
 
 variable "private_subnet_ids" {
@@ -23,7 +23,7 @@ variable "private_subnet_ids" {
 
 variable "public_subnet_ids" {
   type        = list(string)
-  description = "Optional: list of public subnets for spot instance (if instance needs a public IP)."
+  description = "Optional: list of public subnets for ec2 instance (if instance needs a public IP)."
   default     = []
 }
 
@@ -92,40 +92,40 @@ variable "cluster_name" {
   default     = null
 }
 
-# Spot GPU instance config
-variable "spot_instance_type" {
+# General EC2 instance config (applies to both spot and on-demand)
+variable "ec2_instance_type" {
   type        = string
-  description = "GPU spot instance type (eg p3.2xlarge, g4dn.xlarge). Caller should ensure quota."
-  default     = "g4dn.xlarge"
+  description = "EC2 instance type for the helper instance (e.g., t3.micro, g4dn.xlarge)."
+  default     = "t3.micro"
 }
 
-variable "spot_ami_id" {
+variable "ec2_ami_id" {
   type        = string
-  description = "AMI ID to use for the spot instance. If empty module will try to find an AMI (caller recommended to pass one)."
+  description = "AMI ID to use for the EC2 instance (spot or on-demand). If empty the module will try to find an ECS-optimized AMI."
   default     = ""
 }
 
-variable "spot_key_name" {
+variable "ec2_key_name" {
   type        = string
-  description = "Name of SSH key pair to attach to Spot instance (optional)."
+  description = "Name of SSH key pair to attach to the EC2 instance (optional)."
   default     = ""
 }
 
-variable "spot_root_volume_size" {
+variable "ec2_root_volume_size" {
   type        = number
-  description = "Root EBS size in GB for the spot instance (persistent root volume)."
+  description = "Root EBS size in GB for the ec2 instance (persistent root volume)."
   default     = 200
 }
 
-variable "spot_subnet_id" {
+variable "ec2_subnet_id" {
   type        = string
-  description = "Subnet ID to launch the spot instance into (public subnet if public IP required)."
+  description = "Subnet ID to launch the ec2 instance into (public subnet if public IP required)."
   default     = ""
 }
 
-variable "spot_allocate_public_ip" {
+variable "ec2_allocate_public_ip" {
   type        = bool
-  description = "Whether to assign a public IP to the spot instance."
+  description = "Whether to assign a public IP to the ec2 instance."
   default     = false
 }
 
@@ -142,18 +142,18 @@ variable "tags" {
   description = "Tags to apply to resources."
 }
 
-# Optional user_data for spot instance (bash)
-variable "spot_user_data" {
+# Optional user_data for ec2 instance (bash)
+variable "ec2_user_data" {
   type        = string
   default     = ""
-  description = "Optional user_data script to run on spot instance (base64 will be applied)."
+  description = "Optional user_data script to run on ec2 instance (base64 will be applied)."
 }
 
 # IAM settings
 variable "create_ec2_instance_profile" {
   type    = bool
   default = true
-  description = "Create EC2 instance profile and IAM role for spot instance. Set false to provide existing instance_profile_name."
+  description = "Create EC2 instance profile and IAM role for ec2 instance. Set false to provide existing instance_profile_name."
 }
 
 # EC2 purchase option selection
@@ -167,3 +167,8 @@ variable "ec2_purchase_option" {
   }
 }
 
+variable "ec2_subnet_id" {
+  type        = string
+  description = "Subnet ID for the EC2 instance. If empty, uses the first of task_subnet_ids or private_subnet_ids."
+  default     = ""
+}

@@ -14,8 +14,11 @@ module "ecs_fargate_demo" {
   schedule_expression = "rate(10 minutes)"
 
   # Skip GPU for now (set to true later)
-  create_ec2_instance_profile = false
-  spot_instance_type          = "g4dn.xlarge"  # defined but won’t run yet
+  create_ec2_instance_profile = true
+  ec2_instance_type           = "t3.micro"
+  ec2_purchase_option         = "spot"
+  ec2_allocate_public_ip     = true
+  ec2_ami_id                = "ami-0123456789abcdef0" # optional: provide your pre-configured AMI
 
   tags = {
     Environment = "poc"

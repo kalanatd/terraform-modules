@@ -33,7 +33,7 @@ resource "aws_security_group_rule" "ecs_to_ec2" {
   from_port                = 0
   to_port                  = 0
   protocol                 = "-1"
-  security_group_id        = aws_security_group.spot_sg[0].id
+  security_group_id        = aws_security_group.ec2_sg[0].id
   source_security_group_id = length(var.task_security_group_ids) > 0 ? var.task_security_group_ids[0] : aws_security_group.task_sg[0].id
 }
 

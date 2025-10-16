@@ -70,7 +70,7 @@ resource "aws_iam_role_policy" "events_invoke_ecs_policy" {
   })
 }
 
-# EC2 IAM Role & Instance Profile for Spot instance (optional create)
+# EC2 IAM Role & Instance Profile for ec2 instance (optional create)
 resource "aws_iam_role" "ec2_instance_role" {
   count = var.create_ec2_instance_profile ? 1 : 0
   name  = "${var.name}-ec2-role"

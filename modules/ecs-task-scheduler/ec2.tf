@@ -1,9 +1,9 @@
 # Security group for EC2 instance (spot or on-demand)
-resource "aws_security_group" "spot_sg" {
+resource "aws_security_group" "ec2_sg" {
   count  = var.create_ec2_instance_profile ? 1 : 0
-  name   = "${var.name}-spot-sg"
+  name   = "${var.name}-ec2-sg"
   vpc_id = var.vpc_id
-  description = "Security group for GPU Spot instance"
+  description = "Security group for GPU ec2 instance"
   tags = var.tags
 
   ingress {
@@ -21,9 +21,9 @@ resource "aws_security_group" "spot_sg" {
   }
 }
 
-# Optional: data to lookup a default AMI if user didn't pass spot_ami_id.
+# Optional: data to lookup a default AMI if user didn't pass ec2_ami_id.
 data "aws_ami" "default" {
-  count = var.spot_ami_id == "" ? 1 : 0
+  count = var.ec2_ami_id == "" ? 1 : 0
   most_recent = true
 
   filter {
@@ -35,40 +35,42 @@ data "aws_ami" "default" {
 }
 
 locals {
-  chosen_ami = var.spot_ami_id != "" ? var.spot_ami_id : (length(data.aws_ami.default) > 0 ? data.aws_ami.default[0].id : "")
+  chosen_ami    = var.ec2_ami_id != "" ? var.ec2_ami_id : (length(data.aws_ami.default) > 0 ? data.aws_ami.default[0].id : "")
+  chosen_subnet = var.ec2_subnet_id != "" ? var.ec2_subnet_id : (length(var.task_subnet_ids) > 0 ? var.task_subnet_ids[0] : var.private_subnet_ids[0])
 }
 
 # Launch Template shared by spot or on-demand
-resource "aws_launch_template" "spot" {
+resource "aws_launch_template" "ec2" {
   count        = var.create_ec2_instance_profile ? 1 : 0
-  name_prefix   = "${var.name}-spot-lt-"
+  name_prefix   = "${var.name}-ec2-"
   image_id      = local.chosen_ami
-  instance_type = var.spot_instance_type
-  key_name      = var.spot_key_name != "" ? var.spot_key_name : null
+  instance_type = var.ec2_instance_type
+  key_name      = var.ec2_key_name != "" ? var.ec2_key_name : null
 
   iam_instance_profile {
     name = var.create_ec2_instance_profile ? aws_iam_instance_profile.ec2_instance_profile[0].name : var.instance_profile_name
   }
 
   network_interfaces {
-    associate_public_ip_address = var.spot_allocate_public_ip ? true : false
-    security_groups             = [aws_security_group.spot_sg[0].id]
+    subnet_id                   = local.chosen_subnet
+    associate_public_ip_address = var.ec2_allocate_public_ip ? true : false
+    security_groups             = [aws_security_group.ec2_sg[0].id]
   }
 
   block_device_mappings {
     device_name = "/dev/xvda"
     ebs {
       delete_on_termination = true
-      volume_size           = var.spot_root_volume_size
+      volume_size           = var.ec2_root_volume_size
       volume_type           = "gp3"
     }
   }
 
-  user_data = var.spot_user_data != "" ? base64encode(var.spot_user_data) : null
+  user_data = var.ec2_user_data != "" ? base64encode(var.ec2_user_data) : null
 
   tag_specifications {
     resource_type = "instance"
-    tags = merge(var.tags, { Name = "${var.name}-spot-instance" })
+    tags = merge(var.tags, { Name = "${var.name}-ec2-instance" })
   }
 
   lifecycle {
@@ -79,10 +81,10 @@ resource "aws_launch_template" "spot" {
 # Request a persistent Spot instance (spot)
 resource "aws_spot_instance_request" "gpu_spot" {
   count                   = var.create_ec2_instance_profile && var.ec2_purchase_option == "spot" ? 1 : 0
-  instance_type           = var.spot_instance_type
+  instance_type           = var.ec2_instance_type
   launch_group            = "${var.name}-spot-group"
   launch_template {
-    id      = aws_launch_template.spot[0].id
+    id      = aws_launch_template.ec2[0].id
     version = "$Latest"
   }
   spot_type               = "persistent"
@@ -94,7 +96,7 @@ resource "aws_spot_instance_request" "gpu_spot" {
 resource "aws_instance" "ondemand" {
   count = var.create_ec2_instance_profile && var.ec2_purchase_option == "ondemand" ? 1 : 0
   launch_template {
-    id      = aws_launch_template.spot[0].id
+    id      = aws_launch_template.ec2[0].id
     version = "$Latest"
   }
   tags = merge(var.tags, { Name = "${var.name}-ondemand-instance" })
