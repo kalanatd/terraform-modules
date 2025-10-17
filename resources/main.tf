@@ -15,8 +15,8 @@ module "ecs_fargate_log_anomaly" {
   # Skip GPU for now (set to true later)
   create_ec2_instance_profile = true
   ec2_instance_type           = "t3.micro"
-  ec2_purchase_option         = "spot"
-  ec2_allocate_public_ip      = true
+  ec2_purchase_option         = "ondemand" # spot | ondemand
+  ec2_allocate_public_ip      = false
   ec2_ami_id                  = "ami-0360c520857e3138f" # optional: provide your pre-configured AMI
 
   tags = {
@@ -26,5 +26,6 @@ module "ecs_fargate_log_anomaly" {
     project     = "oho"
     app         = "log-anomaly"
     organization = "oho"
+    env         = "dev"
   }
 }
