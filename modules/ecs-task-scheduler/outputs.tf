@@ -30,5 +30,5 @@ output "spot_instance_public_ip" {
 
 output "task_security_group_id" {
   description = "Security group id used for the Fargate task"
-  value       = length(var.task_security_group_ids) > 0 ? var.task_security_group_ids : [aws_security_group.task_sg[0].id]
+  value       = [aws_security_group.task_sg[0].id]
 }

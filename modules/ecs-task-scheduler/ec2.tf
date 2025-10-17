@@ -22,7 +22,7 @@ resource "aws_security_group" "ec2_sg" {
 }
 
 locals {
-  chosen_subnet = var.ec2_subnet_id != "" ? var.ec2_subnet_id : (length(var.task_subnet_ids) > 0 ? var.task_subnet_ids[0] : var.private_subnet_ids[0])
+  chosen_subnet = var.task_subnet_ids[0]
 }
 
 #### EC2 Instances (no launch template)

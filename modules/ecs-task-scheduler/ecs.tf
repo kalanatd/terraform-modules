@@ -11,7 +11,7 @@ resource "aws_cloudwatch_log_group" "task" {
 
 # Security group for the task if not provided
 resource "aws_security_group" "task_sg" {
-  count  = length(var.task_security_group_ids) == 0 ? 1 : 0
+  count  = 1
   name   = "${var.name}-task-sg"
   vpc_id = var.vpc_id
   description = "Security group for ECS Fargate scheduled task"
@@ -34,7 +34,7 @@ resource "aws_security_group_rule" "ecs_to_ec2" {
   to_port                  = 0
   protocol                 = "-1"
   security_group_id        = aws_security_group.ec2_sg[0].id
-  source_security_group_id = length(var.task_security_group_ids) > 0 ? var.task_security_group_ids[0] : aws_security_group.task_sg[0].id
+  source_security_group_id = aws_security_group.task_sg[0].id
 }
 
 # Task definition for FARGATE
@@ -107,8 +107,8 @@ resource "aws_cloudwatch_event_target" "run_task" {
     launch_type         = "FARGATE"
 
     network_configuration {
-      subnets         = length(var.task_subnet_ids) > 0 ? var.task_subnet_ids : var.private_subnet_ids
-      security_groups = length(var.task_security_group_ids) > 0 ? var.task_security_group_ids : [aws_security_group.task_sg[0].id]
+      subnets         = var.task_subnet_ids
+      security_groups = [aws_security_group.task_sg[0].id]
       assign_public_ip = var.task_assign_public_ip
     }
   }

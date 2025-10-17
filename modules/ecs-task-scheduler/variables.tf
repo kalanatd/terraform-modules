@@ -16,17 +16,6 @@ variable "vpc_id" {
   description = "VPC ID for ECS tasks and the ec2 instance (module does not create a VPC)."
 }
 
-variable "private_subnet_ids" {
-  type        = list(string)
-  description = "List of private subnet IDs for Fargate tasks (awsvpc network)."
-}
-
-variable "public_subnet_ids" {
-  type        = list(string)
-  description = "Optional: list of public subnets for ec2 instance (if instance needs a public IP)."
-  default     = []
-}
-
 # Container image - supports both ECR and Docker Hub
 variable "container_image" {
   type        = string
@@ -69,13 +58,6 @@ variable "task_subnet_ids" {
   description = "Subnet IDs where the Fargate task will run (must be in same VPC)"
   default     = []
 }
-
-variable "task_security_group_ids" {
-  type        = list(string)
-  description = "Security group IDs for the Fargate task (awsvpc). If empty module will create one."
-  default     = []
-}
-
 # Whether to assign a public IP to the Fargate task ENI. Set true when using
 # public subnets and no NAT is available, so the task can reach the internet
 # (e.g., to pull images from Docker Hub). Keep false for private subnets with NAT.

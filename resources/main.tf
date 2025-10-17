@@ -2,10 +2,9 @@ module "ecs_fargate_log_anomaly" {
   source = "../modules/ecs-task-scheduler"
 
   name                = "log-anomaly"
-  vpc_id              = "vpc-0fefffbcfd060bc68"         # your VPC
-  private_subnet_ids  = ["subnet-08851d6818d40a7de", "subnet-0d03e804190848a65"]
-  public_subnet_ids   = ["subnet-0a695afe41b742aa6"]
-  task_subnet_ids     = ["subnet-0a695afe41b742aa6"]
+  vpc_id              = "vpc-055c34c053fca99f9"         # your VPC
+  task_subnet_ids     = ["subnet-0f34fea17e6974ba7"]
+  task_assign_public_ip = false
 
   # Public Docker Hub image
   container_image       = "985504043303.dkr.ecr.us-east-1.amazonaws.com/oho/log-anomaly:latest"
