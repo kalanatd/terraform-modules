@@ -12,6 +12,29 @@ resource "aws_iam_role" "ecs_task_execution" {
   tags = var.tags
 }
 
+# S3 read access for ECS task role
+resource "aws_iam_role_policy" "ecs_task_s3_read" {
+  name = "${var.name}-task-s3-read"
+  role = aws_iam_role.ecs_task_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:ListBucket"
+        ]
+        Resource = [
+          aws_s3_bucket.config.arn,
+          "${aws_s3_bucket.config.arn}/*"
+        ]
+      }
+    ]
+  })
+}
+
 resource "aws_iam_role_policy_attachment" "ecs_task_execution_policy" {
   role       = aws_iam_role.ecs_task_execution.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"

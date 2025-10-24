@@ -102,6 +102,11 @@ variable "ec2_root_volume_size" {
   default     = 200
 }
 
+variable "log_groups_json" {
+  description = "JSON string containing log groups configuration"
+  type        = string
+}
+
 variable "ec2_subnet_id" {
   type        = string
   description = "Subnet ID to launch the ec2 instance into (public subnet if public IP required)."

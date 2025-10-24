@@ -18,6 +18,10 @@ resource "aws_security_group" "task_sg" {
   revoke_rules_on_delete = true
   tags = var.tags
 
+  lifecycle {
+    create_before_destroy = true
+    ignore_changes = [ingress, egress]
+  }
   egress {
     from_port   = 0
     to_port     = 0
@@ -68,6 +72,16 @@ resource "aws_ecs_task_definition" "scheduled" {
         {
           containerPort = var.container_port
           protocol      = "tcp"
+        }
+      ]
+      environment = [
+        {
+          name  = "CONFIG_BUCKET"
+          value = aws_s3_bucket.config.id
+        },
+        {
+          name  = "CONFIG_KEY"
+          value = aws_s3_object.config.key
         }
       ]
       logConfiguration = {

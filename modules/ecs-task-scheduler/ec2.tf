@@ -4,6 +4,11 @@ resource "aws_security_group" "ec2_sg" {
   name   = "${var.name}-ec2-sg"
   vpc_id = var.vpc_id
   description = "Security group for GPU ec2 instance"
+
+  lifecycle {
+    create_before_destroy = true
+    ignore_changes = [ingress, egress]
+  }
   tags = var.tags
 
   ingress {

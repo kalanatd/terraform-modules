@@ -19,6 +19,12 @@ module "ecs_fargate_log_anomaly" {
   ec2_allocate_public_ip      = false
   ec2_ami_id                  = "ami-0360c520857e3138f" # optional: provide your pre-configured AMI
 
+  # Log groups configuration JSON
+  log_groups_json = jsonencode([
+    {"name": "lambda-app0", "logGroup": "/aws/lambda/musatest1", "uniqueLabel": ""},
+    {"name": "lambda-app1", "logGroup": "/aws/lambda/clouunt-Disc", "uniqueLabel": ""},
+    {"name": "lambda-cluster0", "logGroup": "/aws/eks/skyu-sa/cluster", "uniqueLabel": "cluster"},
+  ])
   tags = {
     Environment = "poc"
     Owner       = "kalana"

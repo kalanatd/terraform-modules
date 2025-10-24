@@ -8,8 +8,29 @@ log() {
   echo "[$(date -Iseconds)] $*"
 }
 
-log "🚀 Starting EC2 IAM access validation"
+log "🚀 Starting application"
 log "AWS region: $REGION"
+
+# Log S3 configuration
+log "📦 S3 Configuration:"
+log "   Bucket: $CONFIG_BUCKET"
+log "   Key: $CONFIG_KEY"
+
+# --- Step 1: Read Config from S3 ---
+if [ -n "$CONFIG_BUCKET" ] && [ -n "$CONFIG_KEY" ]; then
+  log "🔍 Fetching configuration from S3..."
+  CONFIG_JSON=$(aws s3 cp "s3://$CONFIG_BUCKET/$CONFIG_KEY" - 2>&1)
+  if [ $? -ne 0 ]; then
+    log "❌ Failed to fetch configuration from S3"
+    echo "$CONFIG_JSON"
+  else
+    log "✅ Successfully fetched configuration from S3"
+    log "📝 Configuration content:"
+    echo "$CONFIG_JSON" | jq '.'
+  fi
+else
+  log "⚠️ S3 configuration not provided"
+fi
 
 # --- Step 1: Fetch EC2 instances ---
 log "🔍 Fetching EC2 instances..."
